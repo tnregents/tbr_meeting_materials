@@ -1,0 +1,9 @@
+name = TBR Meeting Materials
+description = "Takes the zip file, unzips it, and links to it."
+core = 7.x
+package = TBR
+version = "7.x-1.0"
+core = "7.x"
+project = "tbr_meeting_materials"
+files[] = tbr_meeting_materials.module
+configure = admin/config/system/tbrmeetingmaterials

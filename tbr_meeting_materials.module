@@ -1,0 +1,50 @@
+<?php
+/**
+ * @file
+ * Adds terms and conditions along with checkbox to agree to them at login.  User block
+ * only at this point in time.
+ *
+*/
+
+/**
+ * Implement hook_help().
+ */
+function tbr_meeting_materials_help($path, $arg) {
+ switch ($path) {
+   case 'admin/help#tbrmeetingmaterials':
+     return '<p>'.  t('Meeting materials test') .'</p>';
+     break;
+ }
+}
+
+function tbr_meeting_materials_node_insert($node) {
+	if($node->type == 'tbr_meeting_materials') {
+	  // Get the file ID from the node field
+	  //$fid = $node->field_file[$node->language][0]['fid'];
+	  $fid = $node->field_zip_of_contents['und'][0]['fid'];
+	  //$source = file_create_url(file_load($fid)->uri);
+	  // Load the file
+	  $file = file_load($fid);
+	  // Pass the file path off to the unzip function
+
+	  $archiver = archiver_get_archiver($file->uri);
+
+	  if (!$archiver) {
+	    throw new Exception(t('Cannot extract %file, not a valid archive.', array('%file' => $file)));
+	  }
+
+	  // Remove the directory if it exists, otherwise it might contain a mixture of
+	  // old files mixed with the new files (e.g. in cases where files were removed
+	  // from a later release).
+	  $files = $archiver->listContents();
+
+	  // Unfortunately, we can only use the directory name to determine the project
+	  // name. Some archivers list the first file as the directory (i.e., MODULE/)
+	  // and others list an actual file (i.e., MODULE/README.TXT).
+	  $extract_location = 'public://materials/' . $fid;
+	  if (file_exists($extract_location)) {
+	    //file_unmanaged_delete_recursive($extract_location);
+	  }
+	  $archiver->extract($extract_location);
+	}
+}
